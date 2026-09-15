@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBTI로 포켓몬 찾기</title>
+<style>
+  :root {
+    --cream: #FFF8E4;
+    --cream-deep: #FCEFC7;
+    --yolk: #FFC93C;
+    --yolk-deep: #F7A72C;
+    --brown: #6B4F2A;
+    --brown-soft: #8C6D42;
+    --card: #FFFDF6;
+    --accent: #FF8A5B;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    background: radial-gradient(circle at 20% 0%, var(--cream-deep), var(--cream) 60%);
+    font-family: "Apple SD Gothic Neo", "Malgun Gothic", "Pretendard", "Noto Sans KR", sans-serif;
+    color: var(--brown);
+  }
+
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+
+  header .egg {
+    font-size: 52px;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  h1 {
+    font-size: clamp(28px, 6vw, 40px);
+    margin: 0 0 10px;
+    color: var(--brown);
+    letter-spacing: -0.5px;
+  }
+
+  header p {
+    font-size: 18px;
+    color: var(--brown-soft);
+    margin: 0;
+  }
+
+  /* 유형 선택 그리드 */
+  #pickScreen {
+    background: var(--card);
+    border-radius: 28px;
+    padding: 28px 20px;
+    box-shadow: 0 10px 0 var(--cream-deep), 0 14px 30px rgba(107, 79, 42, 0.12);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  @media (max-width: 480px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .mbti-btn {
+    font-size: 20px;
+    font-weight: 700;
+    padding: 18px 6px;
+    border: none;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #FFE9A8, var(--yolk));
+    color: var(--brown);
+    cursor: pointer;
+    box-shadow: 0 5px 0 var(--yolk-deep);
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+  }
+
+  .mbti-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  .mbti-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 var(--yolk-deep);
+  }
+
+  /* 결과 화면 */
+  #resultScreen {
+    display: none;
+    background: var(--card);
+    border-radius: 28px;
+    padding: 36px 26px;
+    text-align: center;
+    box-shadow: 0 10px 0 var(--cream-deep), 0 14px 30px rgba(107, 79, 42, 0.12);
+    animation: pop 0.35s ease;
+  }
+
+  @keyframes pop {
+    from { transform: scale(0.92); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .result-tag {
+    display: inline-block;
+    background: var(--yolk);
+    color: var(--brown);
+    font-weight: 800;
+    font-size: 16px;
+    padding: 6px 18px;
+    border-radius: 999px;
+    margin-bottom: 18px;
+  }
+
+  .result-emoji {
+    font-size: 96px;
+    line-height: 1;
+    margin: 6px 0 10px;
+  }
+
+  .result-name {
+    font-size: 30px;
+    font-weight: 800;
+    margin: 0 0 18px;
+    color: var(--brown);
+  }
+
+  .reason-box {
+    background: var(--cream-deep);
+    border-radius: 18px;
+    padding: 18px 20px;
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--brown);
+    text-align: left;
+    margin-bottom: 22px;
+  }
+
+  .match-box {
+    background: #FFF1DE;
+    border: 2px dashed var(--accent);
+    border-radius: 18px;
+    padding: 16px 20px;
+    font-size: 16px;
+    color: var(--brown-soft);
+    margin-bottom: 26px;
+  }
+
+  .match-box b {
+    color: var(--accent);
+    font-size: 18px;
+  }
+
+  .retry-btn {
+    font-size: 20px;
+    font-weight: 800;
+    padding: 14px 34px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #FFB088, var(--accent));
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #E06A3C;
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+  }
+
+  .retry-btn:hover { transform: translateY(-2px); }
+  .retry-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 #E06A3C;
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 14px;
+    color: var(--brown-soft);
+    opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <span class="egg">🥚</span>
+    <h1>MBTI로 포켓몬 찾기</h1>
+    <p>내 성격 유형을 골라서 나와 닮은 포켓몬을 만나보세요</p>
+  </header>
+
+  <div id="pickScreen">
+    <div class="grid" id="mbtiGrid"></div>
+  </div>
+
+  <div id="resultScreen">
+    <div class="result-tag" id="resultTag">INTJ</div>
+    <div class="result-emoji" id="resultEmoji">🧠</div>
+    <div class="result-name" id="resultName">뮤츠</div>
+    <div class="reason-box" id="resultReason"></div>
+    <div class="match-box" id="resultMatch"></div>
+    <button class="retry-btn" onclick="showPickScreen()">🔄 다시 고르기</button>
+  </div>
+
+  <footer>16가지 성격 유형 × 포켓몬 궁합 가이드</footer>
+</div>
+
+<script>
+  const data = {
+    ISTJ: { name: "딱구리", emoji: "🕳️",
+      reason: "정해진 규칙대로 묵묵히 자기 할 일을 해내는 성실함이 꼭 닮았어요.\n눈에 띄지 않아도 깊고 단단하게 자기 영역을 지켜내는 스타일이에요.\n한번 정한 원칙은 끝까지 지키는 뚝심이 있어요.",
+      match: "ESFP" },
+    ESFP: { name: "피카츄", emoji: "⚡",
+      reason: "밝은 에너지로 주변 분위기를 순식간에 띄우는 매력이 똑 닮았어요.\n사람들과 함께 있을 때 가장 빛나는 타입이에요.\n즉흥적이고 솔직한 매력으로 늘 시선을 끌어요.",
+      match: "ISTJ" },
+    ISFJ: { name: "이브이", emoji: "🦊",
+      reason: "곁에 있는 사람을 살뜰히 챙기는 다정함이 꼭 닮았어요.\n겉으로는 조용하지만 무한한 가능성과 헌신을 품고 있어요.\n믿음직하고 따뜻한 조력자 포지션이 잘 어울려요.",
+      match: "ESTP" },
+    ESTP: { name: "리자몽", emoji: "🔥",
+      reason: "망설임 없이 뛰어드는 대담함이 꼭 닮았어요.\n위기 상황에서 오히려 존재감이 폭발하는 타입이에요.\n강렬한 실행력으로 그 자리를 압도해요.",
+      match: "ISFJ" },
+    INFJ: { name: "뮤", emoji: "🌸",
+      reason: "겉으로 잘 드러내지 않지만 깊은 통찰로 세상을 바라봐요.\n이상을 품고 조용히 자기만의 길을 걷는 신비로움이 닮았어요.\n소수의 사람과 진심으로 깊게 연결되는 걸 좋아해요.",
+      match: "ENTP" },
+    ENTP: { name: "고오스", emoji: "👻",
+      reason: "장난스러운 질문 하나로 판을 흔드는 재치가 닮았어요.\n틀에 박힌 생각을 뒤집는 걸 즐기는 아이디어 뱅크예요.\n호기심이 향하는 곳이라면 어디든 스며들어요.",
+      match: "INFJ" },
+    INTJ: { name: "뮤츠", emoji: "🧠",
+      reason: "치밀한 전략과 냉철한 판단력이 꼭 닮았어요.\n목표를 향해서는 누구의 간섭도 필요 없는 독립적인 스타일이에요.\n압도적인 능력 뒤에 숨은 완벽주의가 느껴져요.",
+      match: "ENFP" },
+    ENFP: { name: "망나뇽", emoji: "🐉",
+      reason: "순수하고 다정한 마음속에 엄청난 잠재력을 품고 있어요.\n사람들과 어울리며 즉흥적으로 아이디어를 펼치는 걸 좋아해요.\n따뜻함과 열정을 동시에 가진 만능형이에요.",
+      match: "INTJ" },
+    ISTP: { name: "코일", emoji: "🧲",
+      reason: "군더더기 없이 효율적으로 문제를 해결하는 실용주의자예요.\n말보다 행동, 필요할 때만 정확하게 나서는 스타일이 닮았어요.\n분해하고 관찰하며 원리를 파악하는 걸 즐겨요.",
+      match: "ESFJ" },
+    ESFJ: { name: "푸린", emoji: "🎤",
+      reason: "주변 사람을 즐겁게 하고 챙기는 걸 좋아하는 분위기 메이커예요.\n다른 사람의 감정을 세심하게 살피는 다정함이 닮았어요.\n모두가 편안하도록 자연스럽게 분위기를 이끌어요.",
+      match: "ISTP" },
+    ISFP: { name: "토게피", emoji: "🥚",
+      reason: "여리고 부드러운 겉모습 안에 자기만의 감성을 품고 있어요.\n남들의 시선보다 자신의 취향과 가치를 조용히 지켜가요.\n따뜻하고 온화한 매력으로 주변을 편안하게 만들어요.",
+      match: "ENFJ" },
+    ENFJ: { name: "루카리오", emoji: "🐾",
+      reason: "타인의 감정을 예민하게 읽어내는 공감 능력이 닮았어요.\n카리스마 있게 사람들을 이끌면서도 성장을 돕는 멘토 기질이 있어요.\n주변 사람의 잠재력을 알아보고 끌어올려줘요.",
+      match: "ISFP" },
+    INFP: { name: "이상해씨", emoji: "🌱",
+      reason: "조용하지만 마음속엔 뜨거운 이상과 신념을 품고 있어요.\n천천히, 그러나 꾸준히 자신만의 속도로 성장해가요.\n주변을 살뜰히 돌보는 따뜻한 마음씨가 닮았어요.",
+      match: "ENTJ" },
+    ENTJ: { name: "갸라도스", emoji: "🌊",
+      reason: "한번 마음먹으면 거침없이 밀어붙이는 추진력이 닮았어요.\n타고난 카리스마로 자연스럽게 무리를 이끄는 지휘관 스타일이에요.\n목표 달성을 위해서라면 어떤 어려움도 넘어서요.",
+      match: "INFP" },
+    INTP: { name: "메타몽", emoji: "🔵",
+      reason: "세상 모든 것을 분석하고 이해하려는 호기심 많은 사색가예요.\n틀에 얽매이지 않고 다양한 관점으로 문제를 바라봐요.\n논리적으로 파고들다 보면 시간 가는 줄 몰라요.",
+      match: "ESTJ" },
+    ESTJ: { name: "강철톤", emoji: "🪨",
+      reason: "체계적이고 흔들림 없는 리더십이 꼭 닮았어요.\n원칙과 질서를 중시하며 조직을 단단하게 지탱해요.\n맡은 일은 확실하게 끝까지 책임지는 스타일이에요.",
+      match: "INTP" },
+  };
+
+  const grid = document.getElementById('mbtiGrid');
+  Object.keys(data).forEach(type => {
+    const btn = document.createElement('button');
+    btn.className = 'mbti-btn';
+    btn.textContent = type;
+    btn.onclick = () => showResult(type);
+    grid.appendChild(btn);
+  });
+
+  function showResult(type) {
+    const info = data[type];
+    document.getElementById('resultTag').textContent = type;
+    document.getElementById('resultEmoji').textContent = info.emoji;
+    document.getElementById('resultName').textContent = info.name;
+    document.getElementById('resultReason').innerHTML = info.reason.split('\n').join('<br>');
+    document.getElementById('resultMatch').innerHTML =
+      '💛 궁합이 좋은 유형은 <b>' + info.match + '</b> (' + data[info.match].name + ' ' + data[info.match].emoji + ') 이에요!';
+
+    document.getElementById('pickScreen').style.display = 'none';
+    document.getElementById('resultScreen').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function showPickScreen() {
+    document.getElementById('resultScreen').style.display = 'none';
+    document.getElementById('pickScreen').style.display = 'block';
+  }
+</script>
+
+</body>
+</html>
